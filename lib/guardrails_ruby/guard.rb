@@ -30,7 +30,7 @@ module GuardrailsRuby
       raise ArgumentError, "Unknown check: #{name.inspect}" unless check_class
 
       target = @current_checks
-      raise "check must be called inside an input or output block" unless target
+      raise ArgumentError, "check must be called inside an input or output block" unless target
 
       target << check_class.new(**options)
     end
@@ -48,6 +48,7 @@ module GuardrailsRuby
 
     # Wrap an LLM call with input + output guards
     def call(user_input, context: {})
+      user_input = user_input.to_s if user_input.nil?
       input_result = check_input(user_input)
       handle_violations(input_result)
 

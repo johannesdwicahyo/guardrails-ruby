@@ -11,7 +11,7 @@ guard = GuardrailsRuby::Guard.new do
   input do
     check :prompt_injection
     check :pii, action: :redact
-    check :max_length, max: 1000
+    check :max_length, chars: 1000
   end
 
   output do
