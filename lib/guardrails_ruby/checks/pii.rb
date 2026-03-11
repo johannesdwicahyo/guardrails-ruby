@@ -12,7 +12,13 @@ module GuardrailsRuby
         email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/,
         phone_us: /\b(?:\+?1[-.]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/,
         ip_address: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/,
-        date_of_birth: /\b(?:DOB|date of birth|born)[:\s]*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/i
+        date_of_birth: /\b(?:DOB|date of birth|born)[:\s]*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/i,
+
+        # International formats
+        nik_indonesia: /\b\d{16}\b/,
+        phone_international: /\b\+(?:62|44|49|33|81|86|91|61|64|65)\d{8,12}\b/,
+        iban: /\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}(?:[A-Z0-9]{0,16})\b/,
+        passport: /\b[A-Z]{1,2}\d{6,9}\b/
       }.freeze
 
       REDACT_MAP = {
@@ -21,12 +27,19 @@ module GuardrailsRuby
         email: "[EMAIL REDACTED]",
         phone_us: "[PHONE REDACTED]",
         ip_address: "[IP REDACTED]",
-        date_of_birth: "[DOB REDACTED]"
+        date_of_birth: "[DOB REDACTED]",
+        nik_indonesia: "[NIK REDACTED]",
+        phone_international: "[PHONE REDACTED]",
+        iban: "[IBAN REDACTED]",
+        passport: "[PASSPORT REDACTED]"
       }.freeze
 
       def call(text, context: {})
+        enabled = @options.fetch(:patterns, PATTERNS.keys)
         found = {}
+
         PATTERNS.each do |type, pattern|
+          next unless enabled.include?(type)
           matches = text.scan(pattern)
           found[type] = matches if matches.any?
         end
